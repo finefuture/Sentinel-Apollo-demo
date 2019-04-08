@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: localhost:10002
+      eager: true
+#server:
+#  port: 10009
+project:
+  name: Sentinel-Apollo-Demo
