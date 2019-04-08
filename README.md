@@ -20,7 +20,7 @@ Sentinel-Apollo-demo 是我fork的Sentinel分支dashboard/integration-ApolloConf
 ##  必须的类
 1、RulesKeyUtils :
 
-这个类的主要作用是获取每个应用专属的对应在Apollo配置中心的唯一key，可以通过启动时添加系统变量比如-Dsentinel.apollo.flowRules(详见：[中文文档](https://github.com/finefuture/Sentinel-Apollo-demo/blob/master/src/main/java/com/example/demo/configuration/RulesKeyUtils.java))来设置，它默认的是取比如appName+ip+port+flowsKey(port需要通过-Dserver.port来配置)
+这个类的主要作用是获取每个应用专属的对应在Apollo配置中心的唯一key，可以通过启动时添加系统变量比如-Dsentinel.apollo.flowRules(详见：[RulesKeyUtils](https://github.com/finefuture/Sentinel-Apollo-demo/blob/master/src/main/java/com/example/demo/configuration/RulesKeyUtils.java))来设置，它默认的是取比如appName+ip+port+flowsKey(port需要通过-Dserver.port来配置)
 
 2、SentinelConfigChangeSender :
 
