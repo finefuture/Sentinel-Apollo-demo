@@ -7,7 +7,7 @@ Sentinel-Apollo-demo 是我fork的Sentinel分支dashboard/integration-ApolloConf
 ##  重写的类
 1、ApolloDataSource :
 
-主要添加了一个ApolloDataSource初始化时强制刷新控制台该app配置在apollo的规则，存储在InMemoryStore的Map的里面，还有一个apollo的config change事件时通过operator判断是否由Sentinel控制台产生的，如果不是那么证明是通过Apollo控制台强行修改的，这样的话需要触发Sentinel控制台的规则强制刷新(注:想使用这个功能需要修改apollo源码，我fork了apollo 1.4版本的源码进行了修改，分支是feature-addOperator)。
+主要添加了一个ApolloDataSource初始化时强制刷新控制台该app配置在apollo的规则，存储在InMemoryStore的Map的里面，还有一个apollo的config change事件时通过operator判断是否由Sentinel控制台产生的，如果不是那么证明是通过Apollo控制台强行修改的，这样的话需要触发Sentinel控制台的规则强制刷新(注:想使用这个功能需要修改apollo源码，我fork了apollo 1.4版本的源码进行了修改，分支是feature-addOperator，需要自行打包构建，项目中的话需要将改造的apollo-client和apollo-core放入maven私库引入或者直接jar包引入)。
 
 2、HeartBeatSenderInitFunc :
 
