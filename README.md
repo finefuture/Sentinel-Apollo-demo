@@ -50,10 +50,10 @@ HttpHeartBeatSender和SentinelConfigChangeSender抽取出来的公共类
 
 apollo配置：需要建立一个公共配置，namespace为Sentinel-Common，配置如下：
 
-portalUrl = (your portal url)
-apolloApiClientToken = (your third party client token)
-apolloApiClientConnectTimeout = 2000
-apolloApiClientReadTimeout = 8000
-sentinelOperator = longqiang
+portalUrl = (your portal url)<br>
+apolloApiClientToken = (your third party client token)<br>
+apolloApiClientConnectTimeout = 2000<br>
+apolloApiClientReadTimeout = 8000<br>
+sentinelOperator = longqiang<br>
 
 sentinelOperator和apolloApiClientToken需要在apollo portal页面的管理员工具目录下的开放平台授权页面进行设置
