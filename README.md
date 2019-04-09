@@ -46,4 +46,14 @@ HttpHeartBeatSender和SentinelConfigChangeSender抽取出来的公共类
 2、apollo-configservice jar是apollo启动的jar
 
 ##   demo启动说明
--Ddev_meta=(your apollo dev metaserver address)  -Denv=DEV -Dapp.id=(application apollo appId) -Dserver.port=(your application server port)
+启动参数 ： -Ddev_meta=(your apollo dev metaserver address)  -Denv=DEV -Dapp.id=(application apollo appId) -Dserver.port=(your application server port)
+
+apollo配置：需要建立一个公共配置，namespace为Sentinel-Common，配置如下：
+
+portalUrl = (your portal url)
+apolloApiClientToken = (your third party client token)
+apolloApiClientConnectTimeout = 2000
+apolloApiClientReadTimeout = 8000
+sentinelOperator = longqiang
+
+sentinelOperator和apolloApiClientToken需要在apollo portal页面的管理员工具目录下的开放平台授权页面进行设置
