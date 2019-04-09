@@ -96,3 +96,20 @@ uriBuilder.setScheme("http").setHost(consoleHost).setPort(consolePort)
             .setParameter("operator", config.getProperty(APOLLO_OPERATOR_KEY, "longqiang"));
 ```
 默认配置应该与上述一致
+
+##   操作图示
+
+![apollo rules配置展示图](/home/picture/1.png)
+![apollo Sentinel-Common配置展示图](/home/picture/2.png)
+![sentinel dashboard rules规则展示图](/home/picture/3.png)
+说明：<br>
+强制刷新按钮会从数据源直接拉取最新的规则配置存储在控制台所在程序的内存中，而刷新按钮的话是从内存中读取配置
+![apollo Sentinel-Common配置展示图](/home/picture/4.png)
+说明：<br>
+当点击保存的时候，sentinel-dashboard程序会做以下几件事：<br>
+1、将规则数据存储到内存中<br>
+2、将数据推送到数据源<br>
+而应用程序会做以下几件事：<br>
+1、通过apollo的ConfigChangeListener监听到了配置变化事件
+2、对比operator，如果是apollo portal页面引发的配置变化，那么发送通知给sentinel-dashboard，dashboard就将apollo拉取最新的规则配置
+3、更新本地规则
