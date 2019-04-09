@@ -40,5 +40,7 @@ HttpHeartBeatSender和SentinelConfigChangeSender抽取出来的公共类
 
 ##   jar包说明
 因为这个demo涉及到apollo源码的修改，因此提供了三个jar包
+
 1、apollo-client jar和apollo-core jar是直接引入到项目中的
+
 2、apollo-configservice jar是apollo启动的jar
