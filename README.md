@@ -100,13 +100,18 @@ uriBuilder.setScheme("http").setHost(consoleHost).setPort(consolePort)
 ##   操作图示
 1、apollo rules配置展示图：<br>
 ![apollo rules配置展示图](/picture/1.png)<br>
+<br>
+<br>
 2、apollo Sentinel-Common配置展示图<br>
 ![apollo Sentinel-Common配置展示图](/picture/2.png)<br>
+<br>
+<br>
 3、sentinel dashboard rules规则展示图<br>
 ![sentinel dashboard rules规则展示图](/picture/3.png)<br>
 说明：<br>
 强制刷新按钮会从数据源直接拉取最新的规则配置存储在控制台所在程序的内存中，而刷新按钮的话是从内存中读取配置<br>
-
+<br>
+<br>
 4、sentinel dashboard rules编辑展示图<br>
 ![sentinel dashboard rules编辑展示图](/picture/4.png)<br>
 说明：<br>
