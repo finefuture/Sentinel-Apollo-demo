@@ -56,4 +56,43 @@ apolloApiClientConnectTimeout = 2000<br>
 apolloApiClientReadTimeout = 8000<br>
 sentinelOperator = longqiang<br>
 
-sentinelOperator和apolloApiClientToken需要在apollo portal页面的管理员工具目录下的开放平台授权页面进行设置
+sentinelOperator和apolloApiClientToken需要在apollo portal页面的管理员工具目录下的开放平台授权页面进行设置<br>
+注：sentinelOperator应该与[ApolloDataSource](https://github.com/finefuture/Sentinel-Apollo-demo/blob/master/src/main/java/com/example/demo/configuration/ApolloDataSource.java) 里面的<br>
+```java
+String operator = change.getOperator();
+if (!config.getProperty(APOLLO_OPERATOR_KEY, "longqiang").equals(operator)) {
+    try {
+        configChangeSender.sendChangeRequest(changeType, operator);
+    } catch (Exception e) {
+        RecordLog.warn("[ApolloDataSource] Error when sendChangeRequest", e);
+    }
+}
+```
+这个代码中的默认值"longqiang"一致<br>
+以及[HttpHeartbeatSender](https://github.com/finefuture/Sentinel-Apollo-demo/blob/master/src/main/java/com/example/demo/configuration/HttpHeartbeatSender.java)里面的<br>
+```java
+uriBuilder.setScheme("http").setHost(consoleHost).setPort(consolePort)
+            .setPath("/registryV2/machine") 
+            .setParameter("app", AppNameUtil.getAppName())
+            .setParameter("v", Constants.SENTINEL_VERSION)
+            .setParameter("version", String.valueOf(System.currentTimeMillis()))
+            .setParameter("hostname", HostNameUtil.getHostName())
+            .setParameter("ip", TransportConfig.getHeartbeatClientIp())
+            .setParameter("port", TransportConfig.getPort())
+            .setParameter("pid", String.valueOf(PidUtil.getPid()))
+            .setParameter("namespace", NAMESPACE)
+            .setParameter("env", configUtil.getApolloEnv().name())
+            .setParameter("appId", configUtil.getAppId())
+            .setParameter("clusterName", configUtil.getCluster())
+            .setParameter("portalUrl", config.getProperty(APOLLO_PORTAL_URL_KEY, "http://localhost:10006"))
+            .setParameter("token", config.getProperty(APOLLO_TOKEN_KEY, "7ab4d40bd0a4cd332a747dbddb2a0b47c82fcdf4"))
+            .setParameter("connectTimeout", config.getProperty(APOLLO_CONNECTION_TIMEOUT_KEY, "1000"))
+            .setParameter("readTimeout", config.getProperty(APOLLO_READ_TIMEOUT_KEY, "5000"))
+            .setParameter("degradeRulesKey", RulesKeyUtils.getDegradeRulesKey())
+            .setParameter("flowRulesKey", RulesKeyUtils.getFlowRulesKey())
+            .setParameter("authorityRulesKey", RulesKeyUtils.getAuthorityRulesKey())
+            .setParameter("systemRulesKey", RulesKeyUtils.getSystemRulesKey())
+            .setParameter("paramFlowRulesKey", RulesKeyUtils.getParamFlowRulesKey())
+            .setParameter("operator", config.getProperty(APOLLO_OPERATOR_KEY, "longqiang"));
+```
+默认配置应该与上述一致
