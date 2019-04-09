@@ -44,3 +44,6 @@ HttpHeartBeatSender和SentinelConfigChangeSender抽取出来的公共类
 1、apollo-client jar和apollo-core jar是直接引入到项目中的
 
 2、apollo-configservice jar是apollo启动的jar
+
+##   demo启动说明
+-Ddev_meta=(your apollo dev metaserver address)  -Denv=DEV -Dapp.id=(application apollo appId) -Dserver.port=(your application server port)
