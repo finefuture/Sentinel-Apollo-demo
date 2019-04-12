@@ -26,7 +26,7 @@ import java.util.List;
 public class DataSourceInitFunc implements InitFunc {
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         final String defaultFlowRules = "[]";
 
         //flow rule

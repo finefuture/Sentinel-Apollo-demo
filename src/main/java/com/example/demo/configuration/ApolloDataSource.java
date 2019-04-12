@@ -12,6 +12,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
+import java.util.Optional;
+
 import static com.example.demo.configuration.SentinelConfigConstant.APOLLO_INIT_OPERATOR;
 import static com.example.demo.configuration.SentinelConfigConstant.APOLLO_OPERATOR_KEY;
 
@@ -42,7 +44,7 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
      * @param parser               the parser to transform string configuration to actual flow rules
      */
     public ApolloDataSource(String namespaceName, String rulesKey, String defaultFlowRuleValue,
-                            Converter<String, T> parser, ConfigChangeType changeType) throws Exception {
+                            Converter<String, T> parser, ConfigChangeType changeType) {
         super(parser);
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(namespaceName), "Namespace name could not be null or empty");
@@ -54,6 +56,7 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
 
         this.config = ConfigService.getConfig(namespaceName);
         this.configChangeSender = new SentinelConfigChangeSender();
+        // TODO need retry?
         configChangeSender.sendChangeRequest(changeType, APOLLO_INIT_OPERATOR);
         initialize();
 
@@ -85,14 +88,10 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
             if (change != null) {
                 RecordLog.info("[ApolloDataSource] Received config changes: " + change.toString());
             }
-            String operator = change.getOperator();
-            if (!config.getProperty(APOLLO_OPERATOR_KEY, "longqiang").equals(operator)) {
-                try {
-                    configChangeSender.sendChangeRequest(changeType, operator);
-                } catch (Exception e) {
-                    RecordLog.warn("[ApolloDataSource] Error when sendChangeRequest", e);
-                }
-            }
+            // TODO need retry?
+            Optional.ofNullable(change.getOperator())
+                    .filter(operator -> !config.getProperty(APOLLO_OPERATOR_KEY, "longqiang").equals(operator))
+                    .ifPresent(operator -> configChangeSender.sendChangeRequest(changeType, operator));
             loadAndUpdateRules();
         };
         config.addChangeListener(configChangeListener, Sets.newHashSet(rulesKey));
