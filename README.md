@@ -98,13 +98,22 @@ uriBuilder.setScheme("http").setHost(consoleHost).setPort(consolePort)
 默认配置应该与上述一致
 
 ##   操作图示
-
-![apollo rules配置展示图](/picture/1.png)
-![apollo Sentinel-Common配置展示图](/picture/2.png)
-![sentinel dashboard rules规则展示图](/picture/3.png)
+1、apollo rules配置展示图：<br>
+![apollo rules配置展示图](/picture/1.png)<br>
+<br>
+<br>
+2、apollo Sentinel-Common配置展示图<br>
+![apollo Sentinel-Common配置展示图](/picture/2.png)<br>
+<br>
+<br>
+3、sentinel dashboard rules规则展示图<br>
+![sentinel dashboard rules规则展示图](/picture/3.png)<br>
 说明：<br>
-强制刷新按钮会从数据源直接拉取最新的规则配置存储在控制台所在程序的内存中，而刷新按钮的话是从内存中读取配置
-![apollo Sentinel-Common配置展示图](/picture/4.png)
+强制刷新按钮会从数据源直接拉取最新的规则配置存储在控制台所在程序的内存中，而刷新按钮的话是从内存中读取配置<br>
+<br>
+<br>
+4、sentinel dashboard rules编辑展示图<br>
+![sentinel dashboard rules编辑展示图](/picture/4.png)<br>
 说明：<br>
 当点击保存的时候，sentinel-dashboard程序会做以下几件事：<br>
 1、将规则数据存储到内存中<br>
