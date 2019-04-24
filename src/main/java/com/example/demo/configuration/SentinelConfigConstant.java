@@ -35,6 +35,12 @@ public final class SentinelConfigConstant {
 
     public static final String APOLLO_OPERATOR_KEY = "sentinelOperator";
 
-    public static final String APOLLO_INIT_OPERATOR = "apollo-default";
+    public static final String CLIENT_INIT_OPERATOR = "client-default-operator";
+
+    public static final String DATASOURCE_APOLLO = "Apollo";
+
+    public static final String DATASOURCE_NACOS = "Nacos";
+
+    public static final String NACOS_RULES_GROUP = "SENTINEL_GROUP";
 
 }

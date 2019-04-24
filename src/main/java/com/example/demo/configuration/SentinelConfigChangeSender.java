@@ -4,6 +4,7 @@ import com.alibaba.csp.sentinel.transport.config.TransportConfig;
 import com.alibaba.csp.sentinel.util.AppNameUtil;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.example.demo.enums.ConfigChangeType;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.URIBuilder;
@@ -22,11 +23,11 @@ public class SentinelConfigChangeSender extends SentinelHttpCommon {
 
     private static final Logger logger = LoggerFactory.getLogger(SentinelConfigChangeSender.class);
 
-    public boolean sendChangeRequest(ConfigChangeType changeType, String operator) {
+    public static boolean sendChangeRequest(ConfigChangeType changeType, String operator) {
         if (StringUtil.isEmpty(consoleHost)) {
             return false;
         }
-        logger.info("[ApolloChangeRequest] Sending apolloChangeRequest to {}:{}", consoleHost, consolePort);
+        logger.info("[ChangeRequest] Sending change request to {}:{}, type:{}", consoleHost, consolePort, changeType);
 
         URIBuilder uriBuilder = new URIBuilder();
         uriBuilder.setScheme("http").setHost(consoleHost).setPort(consolePort)
@@ -37,16 +38,18 @@ public class SentinelConfigChangeSender extends SentinelHttpCommon {
                     .setParameter("operator", operator);
 
         HttpPut request;
+        int statusCode;
         try {
             request = new HttpPut(uriBuilder.build());
-            // Send heartbeat request.
             CloseableHttpResponse response = execute(request);
+            StatusLine statusLine = response.getStatusLine();
+            statusCode = statusLine.getStatusCode();
             response.close();
         } catch (URISyntaxException | IOException e) {
             logger.error("Error when sendChangeRequest, {}", e);
             return false;
         }
-        return true;
+        return statusCode == 200;
     }
 
 }

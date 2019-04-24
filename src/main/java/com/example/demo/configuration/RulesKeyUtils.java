@@ -26,17 +26,17 @@ import static com.example.demo.configuration.SentinelConfigConstant.SYSTEM_RULES
  */
 public class RulesKeyUtils {
 
-    public static final String APP_ID = AppNameUtil.getAppName() + ":" + HostNameUtil.getIp() + ":" + System.getProperty("server.port");
+    public static final String APP_ID = AppNameUtil.getAppName() + "_" + HostNameUtil.getIp() + "_" + System.getProperty("server.port");
 
-    public static final String DEFAULT_FLOW_RULES_KEY = APP_ID + ":" + FLOW_RULES_KEY;
+    public static final String DEFAULT_FLOW_RULES_KEY = APP_ID + "_" + FLOW_RULES_KEY;
 
-    public static final String DEFAULT_DEGRADE_RULES_KEY = APP_ID + ":" + DEGRADE_RULES_KEY;
+    public static final String DEFAULT_DEGRADE_RULES_KEY = APP_ID + "_" + DEGRADE_RULES_KEY;
 
-    public static final String DEFAULT_SYSTEM_RULES_KEY = APP_ID + ":" + SYSTEM_RULES_KEY;
+    public static final String DEFAULT_SYSTEM_RULES_KEY = APP_ID + "_" + SYSTEM_RULES_KEY;
 
-    public static final String DEFAULT_PARAM_FLOW_RULES_KEY = APP_ID + ":" + PARAM_FLOW_RULES_KEY;
+    public static final String DEFAULT_PARAM_FLOW_RULES_KEY = APP_ID + "_" + PARAM_FLOW_RULES_KEY;
 
-    public static final String DEFAULT_AUTHORITY_RULES_KEY = APP_ID + ":" + AUTHORITY_RULES_KEY;
+    public static final String DEFAULT_AUTHORITY_RULES_KEY = APP_ID + "_" + AUTHORITY_RULES_KEY;
     /**
      * Http heartbeat param flowRulesKey config.
      */

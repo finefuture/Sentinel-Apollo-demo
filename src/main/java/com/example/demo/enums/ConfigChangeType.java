@@ -41,4 +41,10 @@ public enum ConfigChangeType {
         return type;
     }
 
+    @Override
+    public String toString() {
+        return "ConfigChangeType{" +
+                "type='" + type + '\'' +
+                '}';
+    }
 }

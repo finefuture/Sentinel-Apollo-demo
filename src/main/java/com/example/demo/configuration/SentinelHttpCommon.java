@@ -4,24 +4,30 @@ import com.alibaba.csp.sentinel.log.RecordLog;
 import com.alibaba.csp.sentinel.transport.config.TransportConfig;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.alibaba.csp.sentinel.util.function.Tuple2;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sentinel-Apollo 配置变化发送http请求至监听类
+ * Sentinel http 公共类
  *
  * @author longqiang
  */
-public class SentinelHttpCommon {
-
-    private static final CloseableHttpClient CLIENT = HttpClients.createDefault();
+public abstract class SentinelHttpCommon {
 
     private static final int TIMEOUT_MS = 3000;
     private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom()
@@ -29,6 +35,14 @@ public class SentinelHttpCommon {
             .setConnectTimeout(TIMEOUT_MS)
             .setSocketTimeout(TIMEOUT_MS)
             .build();
+    private static final HttpClientContext CONTEXT = HttpClientContext.create();
+    private static final CookieStore COOKIE_STORE = new BasicCookieStore();
+    private static final CloseableHttpClient CLIENT = HttpClientBuilder.create()
+                                    .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
+                                    .setRedirectStrategy(new DefaultRedirectStrategy())
+                                    .setDefaultRequestConfig(REQUEST_CONFIG)
+                                    .setDefaultCookieStore(COOKIE_STORE)
+                                    .build();
 
     protected static String consoleHost;
     protected static int consolePort;
@@ -42,9 +56,29 @@ public class SentinelHttpCommon {
             consolePort = dashboardList.get(0).r2;
             RecordLog.info("[NettyHttpHeartbeatSender] Dashboard address parsed: <" + consoleHost + ':' + consolePort + ">");
         }
+        sendLoginRequest();
     }
 
-    protected static List<Tuple2<String, Integer>> parseDashboardList() {
+    private static boolean sendLoginRequest() {
+        URIBuilder uriBuilder = new URIBuilder();
+        uriBuilder.setScheme("http").setHost(consoleHost).setPort(consolePort)
+                .setPath("/auth/login")
+                .setParameter("username", "sentinel")
+                .setParameter("password", "sentinel");
+        HttpPost request;
+        try {
+            request = new HttpPost(uriBuilder.build());
+            CloseableHttpResponse response = execute(request);
+            response.close();
+        } catch (URISyntaxException | IOException e) {
+            RecordLog.warn("Error when sendLoginRequest, {}", e);
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    private static List<Tuple2<String, Integer>> parseDashboardList() {
         List<Tuple2<String, Integer>> list = new ArrayList<>();
         try {
             String ipsStr = TransportConfig.getConsoleServer();
@@ -78,8 +112,7 @@ public class SentinelHttpCommon {
         return list;
     }
 
-    protected CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
-        request.setConfig(REQUEST_CONFIG);
-        return CLIENT.execute(request);
+    protected static CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
+        return CLIENT.execute(request, CONTEXT);
     }
 }

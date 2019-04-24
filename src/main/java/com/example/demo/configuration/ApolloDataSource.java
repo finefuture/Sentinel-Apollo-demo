@@ -14,8 +14,8 @@ import com.google.common.collect.Sets;
 
 import java.util.Optional;
 
-import static com.example.demo.configuration.SentinelConfigConstant.APOLLO_INIT_OPERATOR;
 import static com.example.demo.configuration.SentinelConfigConstant.APOLLO_OPERATOR_KEY;
+import static com.example.demo.configuration.SentinelConfigConstant.CLIENT_INIT_OPERATOR;
 
 /**
  * A read-only {@code DataSource} with <a href="http://github.com/ctripcorp/apollo">Apollo</a> as its configuration
@@ -30,7 +30,6 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
     private final Config config;
     private final String rulesKey;
     private final String defaultFlowRuleValue;
-    private final SentinelConfigChangeSender configChangeSender;
     private final ConfigChangeType changeType;
     private ConfigChangeListener configChangeListener;
 
@@ -55,9 +54,8 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
         this.changeType = changeType;
 
         this.config = ConfigService.getConfig(namespaceName);
-        this.configChangeSender = new SentinelConfigChangeSender();
         // TODO need retry?
-        configChangeSender.sendChangeRequest(changeType, APOLLO_INIT_OPERATOR);
+        SentinelConfigChangeSender.sendChangeRequest(changeType, CLIENT_INIT_OPERATOR);
         initialize();
 
         RecordLog.info(String.format("Initialized rule for namespace: %s, flow rules key: %s",
@@ -91,7 +89,7 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
             // TODO need retry?
             Optional.ofNullable(change.getOperator())
                     .filter(operator -> !config.getProperty(APOLLO_OPERATOR_KEY, "longqiang").equals(operator))
-                    .ifPresent(operator -> configChangeSender.sendChangeRequest(changeType, operator));
+                    .ifPresent(operator -> SentinelConfigChangeSender.sendChangeRequest(changeType, operator));
             loadAndUpdateRules();
         };
         config.addChangeListener(configChangeListener, Sets.newHashSet(rulesKey));
