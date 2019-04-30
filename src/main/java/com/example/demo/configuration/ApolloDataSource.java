@@ -54,8 +54,8 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
         this.changeType = changeType;
 
         this.config = ConfigService.getConfig(namespaceName);
-        // TODO need retry?
-        SentinelConfigChangeSender.sendChangeRequest(changeType, CLIENT_INIT_OPERATOR);
+        // default retry three times,if always failure,will send four times
+        SentinelConfigChangeSender.sendChangeRequestWithRetry(changeType, CLIENT_INIT_OPERATOR);
         initialize();
 
         RecordLog.info(String.format("Initialized rule for namespace: %s, flow rules key: %s",
@@ -86,22 +86,21 @@ public class ApolloDataSource<T> extends AbstractDataSource<String, T> {
             if (change != null) {
                 RecordLog.info("[ApolloDataSource] Received config changes: " + change.toString());
             }
-            // TODO need retry?
             Optional.ofNullable(change.getOperator())
                     .filter(operator -> !config.getProperty(APOLLO_OPERATOR_KEY, "longqiang").equals(operator))
-                    .ifPresent(operator -> SentinelConfigChangeSender.sendChangeRequest(changeType, operator));
+                    .ifPresent(operator -> SentinelConfigChangeSender.sendChangeRequestWithRetry(changeType, operator));
             loadAndUpdateRules();
         };
         config.addChangeListener(configChangeListener, Sets.newHashSet(rulesKey));
     }
 
     @Override
-    public String readSource() throws Exception {
+    public String readSource() {
         return config.getProperty(rulesKey, defaultFlowRuleValue);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         config.removeChangeListener(configChangeListener);
     }
 

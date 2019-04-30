@@ -28,11 +28,16 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.internals.ConfigManager;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
 
 import static com.example.demo.configuration.SentinelConfigConstant.APOLLO_CONNECTION_TIMEOUT_KEY;
 import static com.example.demo.configuration.SentinelConfigConstant.APOLLO_OPERATOR_KEY;
@@ -57,16 +62,33 @@ public class HttpHeartbeatSender extends SentinelHttpCommon implements Heartbeat
         this.configUtil = ApolloInjector.getInstance(ConfigUtil.class);
         this.config = ApolloInjector.getInstance(ConfigManager.class).getConfig(CONFIG_NAMESPACE);
         logger.info("[HttpHeartbeatSender] Sending first heartbeat to {}:{}", consoleHost, consolePort);
-        try {
-            sendHeartbeat();
-        } catch (Exception e) {
-            logger.error("[HttpHeartbeatSender] Sending first heartbeat error:{}", e);
-        }
+        sendHeartbeatWithRetry(5);
+    }
+
+    private void sendHeartbeatWithRetry(int retryCount) {
+        RetryWrap retryWrap = new RetryWrap(retryCount) {
+            @Override
+            protected boolean doing() {
+                return sendHeartbeat();
+            }
+
+            @Override
+            protected void afterFailure() {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(50);
+                } catch (InterruptedException e) {
+                    logger.error("Thread fail to sleep and will start the next retry");
+                }
+            }
+        };
+        retryWrap.run();
     }
 
     @Override
-    public boolean sendHeartbeat() throws Exception {
-        if (StringUtil.isEmpty(consoleHost)) {
+    public boolean sendHeartbeat() {
+        //Since HttpServer startup is asynchronous and sending useless ports to dashboard is unnecessary,
+        // the sending condition add TransportConfig. getRuntimePort () < 0.
+        if (StringUtil.isEmpty(consoleHost) || TransportConfig.getRuntimePort() < 0) {
             return false;
         }
         URIBuilder uriBuilder = new URIBuilder();
@@ -74,11 +96,19 @@ public class HttpHeartbeatSender extends SentinelHttpCommon implements Heartbeat
                 .setPath("/registryV2/machine")
                 .setParameter("v", Constants.SENTINEL_VERSION)
                 .setParameter("info", generateParam());
-        HttpGet request = new HttpGet(uriBuilder.build());
-        // Send heartbeat request.
-        CloseableHttpResponse response = execute(request);
-        response.close();
-        return true;
+        HttpGet request;
+        int statusCode;
+        try {
+            request = new HttpGet(uriBuilder.build());
+            CloseableHttpResponse response = execute(request);
+            StatusLine statusLine = response.getStatusLine();
+            statusCode = statusLine.getStatusCode();
+            response.close();
+        } catch (URISyntaxException | IOException e) {
+            logger.error("Error when sendChangeRequest, {}", e);
+            return false;
+        }
+        return statusCode == 200;
     }
 
     private String generateParam() {
@@ -87,7 +117,7 @@ public class HttpHeartbeatSender extends SentinelHttpCommon implements Heartbeat
         jsonObject.put("version", String.valueOf(System.currentTimeMillis()));
         jsonObject.put("hostname", HostNameUtil.getHostName());
         jsonObject.put("ip", TransportConfig.getHeartbeatClientIp());
-        jsonObject.put("port", TransportConfig.getPort());
+        jsonObject.put("port", TransportConfig.getRuntimePort());
         jsonObject.put("pid", String.valueOf(PidUtil.getPid()));
         jsonObject.put("namespace", NAMESPACE);
         jsonObject.put("env", configUtil.getApolloEnv().name());
